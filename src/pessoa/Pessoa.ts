@@ -17,6 +17,10 @@ export class Pessoa extends Model {
     @Column({ field: "cpf" })
     cpf: string;
 
+    @Column({ field: "email" })
+    email: string;
+
+
     @HasMany(() => Conta, { foreignKey: 'idPessoa' })
     contas: Conta[];
 }

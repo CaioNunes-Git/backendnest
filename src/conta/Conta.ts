@@ -18,8 +18,8 @@ export class Conta extends Model{
 
     @Column({field:"saldo"})
     saldo: number
-
-    pessoa:Pessoa
+ 
+    idPessoa: number
 
     @Column({ 
         field: "tipo_conta" ,

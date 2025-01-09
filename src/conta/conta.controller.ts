@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ContaService } from './conta.service';
 import { Conta } from './Conta';
+import { ContaDto } from 'src/dto/Conta.Dto';
 
 @Controller('conta')
 export class ContaController {
@@ -16,9 +17,15 @@ export class ContaController {
     return this.contaService.buscarContaPorId(idConta)
   }
 
-  @Get("/:numConta")
+  @Get("/numconta/:numConta")
   async buscarContaPorNumero(@Param('numConta') numConta:number): Promise<Conta>{
     return this.contaService.buscarContaPorNumero(numConta)
+  }
+
+  
+  @Get("/pessoa/:idPessoa")
+  async buscarContaPorPessoa(@Param('idPessoa') idPessoa:number): Promise<Conta[]>{
+    return this.contaService.buscarContaPorPessoa(idPessoa)
   }
 
   @Post("/depositar/:id")
@@ -39,8 +46,8 @@ export class ContaController {
     return (await conta).saldo
   }
 
-  async cadastrar(conta: Partial<Conta>): Promise<Conta>{
+  @Post("/cadastrar")
+  async cadastrar(@Body() conta: ContaDto): Promise<ContaDto>{
     return this.contaService.cadastrar(conta)
   }
-  
 }

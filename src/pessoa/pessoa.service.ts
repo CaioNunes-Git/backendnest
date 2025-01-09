@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'sequelize-typescript';
 import { Pessoa } from './Pessoa';
 import { InjectModel } from '@nestjs/sequelize';
+import { PessoaDto } from 'src/dto/Pessoa.Dto';
 
 @Injectable()
 export class PessoaService {
@@ -17,7 +18,12 @@ export class PessoaService {
     return this.pessoaRepository.findByPk(id)
   }
 
-  async cadastrar(pessoa: Partial<Pessoa>): Promise<Pessoa>{
-    return this.pessoaRepository.create(pessoa)
+  async cadastrar(pessoa: PessoaDto): Promise<PessoaDto>{
+    return this.pessoaRepository.create({
+      nome: pessoa.nome,
+      telefone: pessoa.telefone,
+      cpf: pessoa.cpf,
+      email: pessoa.email
+    })
   }
 }
