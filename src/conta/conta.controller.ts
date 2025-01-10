@@ -29,16 +29,13 @@ export class ContaController {
   }
 
   @Post("/depositar/:id")
-  async depositar(@Param('id') idConta:number, @Body() valor:number){
-    return this.contaService.depositar(idConta,valor)
+  async depositar(@Param('id') idConta:number, @Body() valor:any){
+    return this.contaService.depositar(idConta,valor.valor)
   }
 
   @Post("/sacar/:id")
-  async sacar(idConta:number, valor:number){
-    const conta = await this.buscarContaPorId(idConta)
-    conta.saldo < valor ? new Error('Saldo insuficiente') : conta.saldo -= valor
-
-    return conta.save()
+  async sacar(@Param('id') idConta:number, @Body() valor:any){
+    return this.contaService.sacar(idConta,valor.valor)
   }
 
   async buscarSaldoPorId(id:number): Promise<number>{

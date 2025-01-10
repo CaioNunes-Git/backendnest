@@ -32,10 +32,13 @@ export class ContaService {
     return conta.save()
   }
 
-  public async sacar(idConta: number, valor: number) {
+  public async sacar(idConta: number, valor:number) {
     const conta = await this.buscarContaPorId(idConta)
-    conta.saldo < valor ? new Error('Saldo insuficiente') : conta.saldo -= valor
 
+    if (conta.saldo < valor) {
+      throw new HttpException('Saldo insuficiente', HttpStatus.BAD_REQUEST);
+  }
+    conta.saldo -= valor;
     return conta.save()
   }
 
