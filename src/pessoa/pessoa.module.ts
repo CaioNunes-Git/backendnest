@@ -8,6 +8,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
   imports: [SequelizeModule.forFeature([Pessoa])],
   controllers: [PessoaController],
   providers: [PessoaService],
+  exports: [PessoaService]
 })
 
 export class PessoaModule {}

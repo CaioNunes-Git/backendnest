@@ -8,6 +8,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Pessoa } from './pessoa/Pessoa';
 import { Transferencia } from './transferencia/Transferencia';
 import { Conta } from './conta/Conta';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { Conta } from './conta/Conta';
       synchronize: true,
       models:[Pessoa, Transferencia, Conta]
     }),
-    PessoaModule, TransferenciaModule, ContaModule],
+    PessoaModule, TransferenciaModule, ContaModule, AuthModule],
   controllers: [AppController],
   providers: [AppService]
 })
