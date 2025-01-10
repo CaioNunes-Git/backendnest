@@ -23,7 +23,6 @@ export class Pessoa extends Model {
     @Column({ field: "senha" })
     senha: string;
 
-
     @HasMany(() => Conta, { foreignKey: 'idPessoa' })
     contas: Conta[];
 }
