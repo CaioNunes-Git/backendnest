@@ -20,6 +20,9 @@ export class Pessoa extends Model {
     @Column({ field: "email" })
     email: string;
 
+    @Column({ field: "senha" })
+    senha: string;
+
 
     @HasMany(() => Conta, { foreignKey: 'idPessoa' })
     contas: Conta[];
