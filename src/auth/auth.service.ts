@@ -15,9 +15,11 @@ export class AuthService {
         if (!await compare(senha, pessoaUser?.senha)) {
             throw new UnauthorizedException("Email e/ou senha incorretos");
         }
+
         const payload = { sub: pessoaUser.id, username: pessoaUser.nome };
+        
         return {
-            access_token: await this.jwtService.signAsync(payload),
+            access_token: 'Bearer ' + await this.jwtService.signAsync(payload),
         };
     }
 }
