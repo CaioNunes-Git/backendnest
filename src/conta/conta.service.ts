@@ -28,7 +28,8 @@ export class ContaService {
 
   public async depositar(idConta: number, valor: number) {
     const conta = await this.buscarContaPorId(idConta)
-    conta.saldo += valor
+    conta.saldo += valor;
+    conta.saldo = parseFloat(conta.saldo.toFixed(2));
     return conta.save()
   }
 
@@ -38,7 +39,9 @@ export class ContaService {
     if (conta.saldo < valor) {
       throw new HttpException('Saldo insuficiente', HttpStatus.BAD_REQUEST);
   }
+
     conta.saldo -= valor;
+    conta.saldo = parseFloat(conta.saldo.toFixed(2));
     return conta.save()
   }
 

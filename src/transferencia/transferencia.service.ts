@@ -3,25 +3,44 @@ import { Transferencia } from './Transferencia';
 import { InjectModel } from '@nestjs/sequelize';
 import { ContaService } from 'src/conta/conta.service';
 import { TransferenciaDto } from 'src/dto/Transferencia.Dto';
+import { addHours } from 'date-fns';
+import { Op } from 'sequelize';
+
 
 @Injectable()
 export class TransferenciaService {
   constructor(
     @InjectModel(Transferencia) private transferenciaRepository: typeof Transferencia,
     @Inject(ContaService) private contaService: ContaService
-  ){}
+  ) { }
 
-  async transferir(transferenciaDto: TransferenciaDto): Promise<TransferenciaDto>{
+  async listarTodos(): Promise<Transferencia[]> {
+    return this.transferenciaRepository.findAll()
+  }
+
+  async buscarTransferenciasPorConta(idConta: number): Promise<Transferencia[]> {
+    return this.transferenciaRepository.findAll({
+      where: {
+        [Op.or]: [
+          { id_conta_origem: idConta },
+          { id_conta_destino: idConta }
+        ]
+      }
+    })
+  }
+
+
+  async transferir(transferenciaDto: TransferenciaDto): Promise<TransferenciaDto> {
     this.contaService.sacar(transferenciaDto.idContaOrigem, transferenciaDto.valor)
     this.contaService.depositar(transferenciaDto.idContaDestino, transferenciaDto.valor)
-
+ 
     const criarTransferencia = await this.transferenciaRepository.create({
       valor: transferenciaDto.valor,
-      data: new Date(),
+      data: addHours(new Date(), -3),
       id_conta_origem: transferenciaDto.idContaOrigem,
       id_conta_destino: transferenciaDto.idContaDestino
     })
-
+    
     return criarTransferencia.save()
   }
 }
