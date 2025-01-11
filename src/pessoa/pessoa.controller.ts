@@ -4,6 +4,7 @@ import { Pessoa } from './Pessoa';
 import { InjectModel } from '@nestjs/sequelize';
 import { PessoaDtoRequest } from 'src/dto/Pessoa.DtoRequest';
 import { PessoaDtoResponse } from 'src/dto/Pessoa.DtoResponse';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @Controller('pessoa')
 export class PessoaController {
@@ -15,6 +16,7 @@ export class PessoaController {
     return this.pessoaService.listarTodos();
   }
 
+  @Public()
   @Post("/cadastrar")
   async cadastrar(@Body() pessoa: PessoaDtoRequest): Promise<PessoaDtoResponse> {
     return this.pessoaService.cadastrar(pessoa)
