@@ -11,9 +11,13 @@ export class AuthService {
     ) { }
 
     async signIn(email: string, senha: string): Promise<{ access_token: string }> {
+        if(email == null || senha == null){
+            throw new UnauthorizedException("Digite suas credenciais de acesso.");
+        }
+
         const pessoaUser = await this.pessoaService.buscarPessoaPorEmail(email);
         if (!await compare(senha, pessoaUser?.senha)) {
-            throw new UnauthorizedException("Email e/ou senha incorretos");
+            throw new UnauthorizedException("Email e/ou senha incorretos.");
         }
 
         const payload = { sub: pessoaUser.id, username: pessoaUser.nome };
