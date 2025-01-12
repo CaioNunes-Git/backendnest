@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { ContaService } from './conta.service';
 import { Conta } from './Conta';
 import { ContaDto } from 'src/dto/Conta.Dto';
@@ -60,5 +60,10 @@ export class ContaController {
   @Post("/cadastrar")
   async cadastrar(@Body() conta: ContaDto): Promise<ContaDto>{
     return this.contaService.cadastrar(conta)
+  }
+
+  @Put("/editar/:id")
+  async editar(@Param('id') idConta:number, @Body() conta: ContaDto): Promise<ContaDto>{
+    return this.contaService.editar(idConta, conta)
   }
 }

@@ -15,7 +15,9 @@ export class ContaService {
   }
 
   public async buscarContaPorId(idConta: number): Promise<Conta> {
-    return this.contaRepository.findByPk(idConta)
+    this.validarSeContaExiste(idConta)
+   
+    return await this.contaRepository.findByPk(idConta)
   }
 
   async buscarContaPorNumero(numConta: string): Promise<Conta> {
@@ -84,15 +86,8 @@ export class ContaService {
   }
 
   async cadastrar(contaDto: ContaDto): Promise<Conta> {
-    const contaMesmoTipo = await this.contaRepository.findOne({
-      where: {
-        idPessoa: contaDto.idPessoa,
-        tipo_conta: contaDto.tipoContaEnum.valueOf(),
-      }
-    })
-    if (contaMesmoTipo != null) {
-      throw new HttpException('A pessoa já possui esse tipo de conta!', HttpStatus.BAD_REQUEST);
-    }
+    this.verificarContaMesmoTipo(contaDto)
+    
 
     const conta = await this.contaRepository.create({ 
       numConta: contaDto.numConta,
@@ -102,6 +97,17 @@ export class ContaService {
       tipoContaEnum: contaDto.tipoContaEnum
     });
 
+    return conta
+  }
+
+  async editar(idConta: number, contaDto: ContaDto): Promise<Conta> {
+    await this.validarSeContaExiste(idConta)
+    const conta = await this.buscarContaPorId(idConta)
+
+    await this.verificarContaMesmoTipo(contaDto)
+
+    conta.tipoContaEnum = contaDto.tipoContaEnum
+    await conta.save()
     return conta
   }
 
@@ -126,11 +132,6 @@ export class ContaService {
     })
   }
 
-
-
-
-
-
   private async validarSeContaExiste(id:number): Promise<void> {
 
     const conta = await this.contaRepository.findOne({
@@ -143,4 +144,18 @@ export class ContaService {
       throw new HttpException('Conta não encontrada.', HttpStatus.NOT_FOUND);
     } 
   }
+
+  private async verificarContaMesmoTipo(contaDto: ContaDto): Promise<void> {
+    const conta = await this.contaRepository.findOne({
+      where: {
+        idPessoa: contaDto.idPessoa,
+        tipo_conta: contaDto.tipoContaEnum
+      }
+    })
+
+    if (conta != null) {
+      throw new HttpException('Conta já cadastrada.', HttpStatus.BAD_REQUEST);
+    }
+  }
+  
 }

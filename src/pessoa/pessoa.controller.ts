@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { PessoaService } from './pessoa.service';
 import { Pessoa } from './Pessoa';
 import { InjectModel } from '@nestjs/sequelize';
@@ -25,5 +25,10 @@ export class PessoaController {
   @Post("/cadastrar")
   async cadastrar(@Body() pessoa: PessoaDtoRequest): Promise<PessoaDtoResponse> {
     return this.pessoaService.cadastrar(pessoa)
+  }
+
+  @Put("/editar/:id")
+  async atualizar(@Param('id') id: number, @Body() pessoa: PessoaDtoRequest): Promise<PessoaDtoResponse> {
+      return this.pessoaService.editar(id, pessoa)
   }
 }

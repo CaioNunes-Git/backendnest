@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'sequelize-typescript';
 import { Pessoa } from './Pessoa';
 import { InjectModel } from '@nestjs/sequelize';
@@ -18,10 +18,12 @@ export class PessoaService {
   }
 
   async listarPorId(id: number): Promise<PessoaDtoResponse> {
+    this.validarSePessoaExiste(id)
     return this.pessoaRepository.findOne({ where: { id } })
   }
 
   async buscarPessoaPorEmail(email: string): Promise<PessoaDtoRequest> {
+
     return this.pessoaRepository.findOne({ where: { email } })
   }
 
@@ -33,5 +35,26 @@ export class PessoaService {
       email: pessoa.email,
       senha: await hash(pessoa.senha, 10)
     })
+  }
+
+  async editar(id: number, pessoa: PessoaDtoRequest): Promise<any> {
+    const pessoaEditada = await this.validarSePessoaExiste(id)
+  
+    pessoaEditada.telefone = pessoa.telefone
+    pessoaEditada.email = pessoa.email
+
+    await pessoaEditada.save()
+    return {
+      status: HttpStatus.OK,
+      message: 'Pessoa editada com sucesso!',
+    }
+  }
+
+  private async validarSePessoaExiste(idPessoa: number) {
+    const pessoa = await this.pessoaRepository.findByPk(idPessoa)
+    if (pessoa == null) {
+      throw new HttpException('Pessoa não encontrada.', HttpStatus.NOT_FOUND);
+    }
+    return pessoa
   }
 }
