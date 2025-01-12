@@ -18,40 +18,72 @@ export class ContaService {
     return this.contaRepository.findByPk(idConta)
   }
 
-  async buscarContaPorNumero(numConta: number): Promise<Conta> {
-    return this.contaRepository.findOne({ where: { numConta: numConta } })
+  async buscarContaPorNumero(numConta: string): Promise<Conta> {
+    const numContaSplit = numConta.split('-')
+    const conta = await this.contaRepository.findOne({ where: { numConta: numContaSplit[0], digito: numContaSplit[1] } })
+    
+    if (conta == null) {
+      throw new HttpException('Conta não encontrada.', HttpStatus.NOT_FOUND);
+    }
+
+    return conta
+
   }
 
   async buscarContaPorPessoa(idPessoa: number): Promise<Conta[]> {
     return this.contaRepository.findAll({ where: { idPessoa: idPessoa } })
   }
 
-  public async depositar(idConta: number, valor: number) {
-    const conta = await this.buscarContaPorId(idConta)
-    conta.saldo += valor;
-    conta.saldo = parseFloat(conta.saldo.toFixed(2));
-    return conta.save()
+  public async depositar(idConta: number, valor: any, tipoConta?: string) {
+
+    await this.validarSeContaExiste(idConta)
+    let conta = null 
+    if (typeof tipoConta !== 'undefined') {
+      conta = await this.buscarContaPorIdETipo(idConta, tipoConta)
+    } else {
+      conta = await this.buscarContaPorId(idConta)
+    }
+    
+    conta.saldo += parseFloat(valor);
+    await conta.save()
+    return {
+      status: HttpStatus.OK,
+      message: 'Depósito efetuado com sucesso!',
+      saldo: conta.saldo
+    }
   }
 
-  public async sacar(idConta: number, valor:number) {
-    const conta = await this.buscarContaPorId(idConta)
+  public async sacar(idConta: number, valor:any, tipoConta: string) {
+    const conta = await this.buscarContaPorIdETipo(idConta, tipoConta)
 
     if (conta.saldo < valor) {
       throw new HttpException('Saldo insuficiente', HttpStatus.BAD_REQUEST);
   }
 
-    conta.saldo -= valor;
-    conta.saldo = parseFloat(conta.saldo.toFixed(2));
-    return conta.save()
+    conta.saldo -= parseFloat(valor);
+    await conta.save()
+    return {
+      status: HttpStatus.OK,
+      message: 'Saque efetuado com sucesso!',
+      saldo: conta.saldo
+    }
   }
 
   async buscarSaldoPorId(id: number): Promise<number> {
     const conta = this.buscarContaPorId(id)
     return (await conta).saldo
+  } 
+
+  async buscarContaPorIdETipo(idConta: number, tipoConta: string): Promise<Conta> {
+    return await this.contaRepository.findOne({
+      where: {
+        id: idConta,
+        tipo_conta: tipoConta.toUpperCase()
+      }
+    })
   }
 
   async cadastrar(contaDto: ContaDto): Promise<Conta> {
-
     const contaMesmoTipo = await this.contaRepository.findOne({
       where: {
         idPessoa: contaDto.idPessoa,
@@ -62,7 +94,7 @@ export class ContaService {
       throw new HttpException('A pessoa já possui esse tipo de conta!', HttpStatus.BAD_REQUEST);
     }
 
-    const conta = this.contaRepository.create({ 
+    const conta = await this.contaRepository.create({ 
       numConta: contaDto.numConta,
       digito: contaDto.digito,
       saldo: contaDto.saldo,
@@ -70,9 +102,45 @@ export class ContaService {
       tipoContaEnum: contaDto.tipoContaEnum
     });
 
-    (await conta).save
     return conta
-    
+  }
 
+
+  async buscarTipoContaPorIdPessoa(idPessoa: number): Promise<string[]> {
+
+    const conta = await this.contaRepository.findAll({
+      where: {
+        idPessoa: idPessoa
+      }
+    })
+
+    return conta.map((conta) => conta.tipoContaEnum.valueOf())
+  }
+
+  async buscarContaPorIdPessoaETipoConta(idPessoa: number, tipoConta: string): Promise<Conta> {
+    return await this.contaRepository.findOne({
+      where: { 
+        idPessoa: idPessoa,
+        tipo_conta: tipoConta.toUpperCase()
+      }
+    })
+  }
+
+
+
+
+
+
+  private async validarSeContaExiste(id:number): Promise<void> {
+
+    const conta = await this.contaRepository.findOne({
+      where: {
+        id:id
+      }
+    })
+
+    if (conta == null) {
+      throw new HttpException('Conta não encontrada.', HttpStatus.NOT_FOUND);
+    } 
   }
 }

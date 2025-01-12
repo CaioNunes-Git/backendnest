@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
 import { ContaService } from './conta.service';
 import { Conta } from './Conta';
 import { ContaDto } from 'src/dto/Conta.Dto';
@@ -18,7 +18,7 @@ export class ContaController {
   }
 
   @Get("/numconta/:numConta")
-  async buscarContaPorNumero(@Param('numConta') numConta:number): Promise<Conta>{
+  async buscarContaPorNumero(@Param('numConta') numConta:string): Promise<Conta>{
     return this.contaService.buscarContaPorNumero(numConta)
   }
 
@@ -28,20 +28,34 @@ export class ContaController {
     return this.contaService.buscarContaPorPessoa(idPessoa)
   }
 
-  @Post("/depositar/:id")
-  async depositar(@Param('id') idConta:number, @Body() valor:any){
-    return this.contaService.depositar(idConta,valor.valor)
-  }
-
-  @Post("/sacar/:id")
-  async sacar(@Param('id') idConta:number, @Body() valor:any){
-    return this.contaService.sacar(idConta,valor.valor)
-  }
-
+  //@Get("/saldo/:id")
   async buscarSaldoPorId(id:number): Promise<number>{
     const conta = this.buscarContaPorId(id)
     return (await conta).saldo
   }
+
+  @Get("/tipoConta/:idPessoa")
+  async buscarTipoContaPorIdPessoa(@Param('idPessoa') idPessoa:number): Promise<string[]>{
+    return await this.contaService.buscarTipoContaPorIdPessoa(idPessoa)
+  }
+
+  @Get("/idpessoatipoconta/:idPessoa/:tipoConta")
+  async buscarContaPorIdPessoaETipoConta(@Param('idPessoa') idPessoa:number, @Param('tipoConta') tipoConta:string): Promise<Conta>{
+    return this.contaService.buscarContaPorIdPessoaETipoConta(idPessoa, tipoConta)
+  }  
+
+  @Post("/depositar/:id")
+  @HttpCode(HttpStatus.OK)
+  async depositar(@Param('id') idConta:number, @Body() valor:any, @Body() tipoConta: any){
+    return this.contaService.depositar(idConta, valor.valor, tipoConta.tipoConta)
+  } 
+
+  @Post("/sacar/:id")
+  @HttpCode(HttpStatus.OK)
+  async sacar(@Param('id') idConta:number, @Body() valor:any, @Body() tipoConta: any){
+    return this.contaService.sacar(idConta, valor.valor, tipoConta.tipoConta)
+  }
+
 
   @Post("/cadastrar")
   async cadastrar(@Body() conta: ContaDto): Promise<ContaDto>{

@@ -10,7 +10,7 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
-    async signIn(email: string, senha: string): Promise<{ access_token: string }> {
+    async signIn(email: string, senha: string): Promise<{ access_token: string, id: number }> {
         if(email == null || senha == null){
             throw new UnauthorizedException("Digite suas credenciais de acesso.");
         }
@@ -23,7 +23,8 @@ export class AuthService {
         const payload = { sub: pessoaUser.id, username: pessoaUser.nome };
         
         return {
-            access_token: 'Bearer ' + await this.jwtService.signAsync(payload),
+            access_token: await this.jwtService.signAsync(payload),
+            id: pessoaUser.id
         };
     }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { PessoaService } from './pessoa.service';
 import { Pessoa } from './Pessoa';
 import { InjectModel } from '@nestjs/sequelize';
@@ -14,6 +14,11 @@ export class PessoaController {
   @Get()
   async listarTodos(): Promise<PessoaDtoResponse[]> {
     return this.pessoaService.listarTodos();
+  }
+
+  @Get("/:id")
+  async listarPorId(@Param('id') id: number): Promise<PessoaDtoResponse> {
+    return this.pessoaService.listarPorId(id);
   }
 
   @Public()

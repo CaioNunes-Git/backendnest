@@ -17,8 +17,8 @@ export class PessoaService {
     return this.pessoaRepository.findAll()
   }
 
-  async listarPorId(id: number) {
-    return this.pessoaRepository.findByPk(id)
+  async listarPorId(id: number): Promise<PessoaDtoResponse> {
+    return this.pessoaRepository.findOne({ where: { id } })
   }
 
   async buscarPessoaPorEmail(email: string): Promise<PessoaDtoRequest> {

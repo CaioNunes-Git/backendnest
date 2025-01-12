@@ -15,11 +15,11 @@ export class TransferenciaService {
   ) { }
 
   async listarTodos(): Promise<Transferencia[]> {
-    return this.transferenciaRepository.findAll()
+    return await this.transferenciaRepository.findAll()
   }
 
   async buscarTransferenciasPorConta(idConta: number): Promise<Transferencia[]> {
-    return this.transferenciaRepository.findAll({
+    return await this.transferenciaRepository.findAll({
       where: {
         [Op.or]: [
           { id_conta_origem: idConta },
@@ -30,9 +30,9 @@ export class TransferenciaService {
   }
 
 
-  async transferir(transferenciaDto: TransferenciaDto): Promise<TransferenciaDto> {
-    this.contaService.sacar(transferenciaDto.idContaOrigem, transferenciaDto.valor)
-    this.contaService.depositar(transferenciaDto.idContaDestino, transferenciaDto.valor)
+  async transferir(transferenciaDto: TransferenciaDto, tipoContaOrigem: any): Promise<any> {
+    await this.contaService.sacar(transferenciaDto.idContaOrigem, transferenciaDto.valor, tipoContaOrigem.tipoConta)
+    await this.contaService.depositar(transferenciaDto.idContaDestino, transferenciaDto.valor)
  
     const criarTransferencia = await this.transferenciaRepository.create({
       valor: transferenciaDto.valor,
@@ -40,7 +40,12 @@ export class TransferenciaService {
       id_conta_origem: transferenciaDto.idContaOrigem,
       id_conta_destino: transferenciaDto.idContaDestino
     })
-    
-    return criarTransferencia.save()
+
+    await criarTransferencia.save()
+
+    return { 
+      status: 200,
+      message: 'Transferência efetuada com sucesso!',
+    }
   }
 }
