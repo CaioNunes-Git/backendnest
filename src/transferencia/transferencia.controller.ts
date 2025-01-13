@@ -17,6 +17,11 @@ export class TranferenciaController {
     return this.transferenciaService.buscarTransferenciasPorConta(idConta)
   }
 
+  @Get('/pessoa/:idPessoa')
+  async buscarTransferenciasPorPessoa(@Param('idPessoa') idPessoa: number): Promise<Transferencia[]> {
+    return this.transferenciaService.buscarTransferenciasPorPessoa(idPessoa);
+  }
+
   @Post()
   @HttpCode(HttpStatus.OK)
   async transferir(@Body() transferencia: TransferenciaDto, @Body() tipoContaOrigem: string): Promise<TransferenciaDto>{

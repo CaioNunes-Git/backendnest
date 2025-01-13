@@ -29,6 +29,38 @@ export class TransferenciaService {
     })
   }
 
+  async buscarTransferenciasPorPessoa(idPessoa: number): Promise<any[]> {
+    const contas = await this.contaService.buscarContaPorPessoa(idPessoa);
+    const idsContas = contas.map(conta => conta.id);
+
+    const transferencias = await this.transferenciaRepository.findAll({
+      where: {
+        [Op.or]: [
+          { id_conta_origem: { [Op.in]: idsContas } },
+          { id_conta_destino: { [Op.in]: idsContas } },
+        ],
+      },
+    });
+
+    const transferenciasDetalhadas = await Promise.all(transferencias.map(async transferencia => {
+      const contaDestino = await this.contaService.buscarContaPorId(transferencia.id_conta_destino);
+      const contaOrigem = await this.contaService.buscarContaPorId(transferencia.id_conta_origem);
+      return {
+        ...transferencia.toJSON(),
+        contaDestino: contaDestino ? {
+          id: contaDestino.id,
+          numConta: contaDestino.numConta,
+          digito: contaDestino.digito,
+        } : null,
+        contaOrigem: contaOrigem ? {
+          id: contaOrigem.id,
+          numConta: contaOrigem.numConta,
+          digito: contaOrigem.digito,
+        } : null,
+      };
+    }));
+    return transferenciasDetalhadas;
+  }
 
   async transferir(transferenciaDto: TransferenciaDto, tipoContaOrigem: any): Promise<any> {
     await this.contaService.sacar(transferenciaDto.idContaOrigem, transferenciaDto.valor, tipoContaOrigem.tipoConta)

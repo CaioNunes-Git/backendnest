@@ -102,13 +102,16 @@ export class ContaService {
 
   async editar(idConta: number, contaDto: ContaDto): Promise<Conta> {
     await this.validarSeContaExiste(idConta)
-    const conta = await this.buscarContaPorId(idConta)
+    const contaEditada = await this.buscarContaPorId(idConta)
 
     await this.verificarContaMesmoTipo(contaDto)
 
-    conta.tipoContaEnum = contaDto.tipoContaEnum
-    await conta.save()
-    return conta
+    Object.assign(contaEditada, {
+      tipoContaEnum: contaDto.tipoContaEnum ?? contaEditada.tipoContaEnum,
+    });
+ 
+    await contaEditada.save()
+    return contaEditada
   }
 
 
@@ -154,7 +157,7 @@ export class ContaService {
     })
 
     if (conta != null) {
-      throw new HttpException('Conta já cadastrada.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Tipo de Conta já cadastrado.', HttpStatus.BAD_REQUEST);
     }
   }
   

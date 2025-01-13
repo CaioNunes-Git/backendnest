@@ -38,12 +38,16 @@ export class PessoaService {
   }
 
   async editar(id: number, pessoa: PessoaDtoRequest): Promise<any> {
-    const pessoaEditada = await this.validarSePessoaExiste(id)
-  
-    pessoaEditada.telefone = pessoa.telefone
-    pessoaEditada.email = pessoa.email
 
+    const pessoaEditada = await this.validarSePessoaExiste(id)
+
+    Object.assign(pessoaEditada, {
+      telefone: pessoa.telefone ?? pessoaEditada.telefone,
+      email: pessoa.email ?? pessoaEditada.email,
+    });
+  
     await pessoaEditada.save()
+
     return {
       status: HttpStatus.OK,
       message: 'Pessoa editada com sucesso!',

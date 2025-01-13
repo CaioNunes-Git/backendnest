@@ -16,14 +16,14 @@ export class Transferencia extends Model {
     
     @ForeignKey(() => Conta)
     @Column({ field: "id_conta_origem" })
-    idContaOrigem: number;
+    id_conta_origem: number;
 
     @BelongsTo(() => Conta, { foreignKey: 'id_conta_origem' })  
     contaOrigem: Conta;
      
     @ForeignKey(() => Conta)
     @Column({ field: "id_conta_destino" })
-    idContaDestino: number;
+    id_conta_destino: number;
 
     @BelongsTo(() => Conta, { foreignKey: 'id_conta_destino' })  
     contaDestino: Conta; 
