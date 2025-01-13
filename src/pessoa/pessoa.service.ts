@@ -23,11 +23,17 @@ export class PessoaService {
   }
 
   async buscarPessoaPorEmail(email: string): Promise<PessoaDtoRequest> {
-
     return this.pessoaRepository.findOne({ where: { email } })
   }
 
+  async buscarPessoaPorCpf(cpf: string): Promise<PessoaDtoRequest> {
+    return this.pessoaRepository.findOne({ where: { cpf } })
+  }
+
+
+
   async cadastrar(pessoa: PessoaDtoRequest): Promise<PessoaDtoResponse> {
+    await this.validarSeCPFExiste(pessoa.cpf)
     return await this.pessoaRepository.create({
       nome: pessoa.nome,
       telefone: pessoa.telefone,
@@ -60,5 +66,12 @@ export class PessoaService {
       throw new HttpException('Pessoa não encontrada.', HttpStatus.NOT_FOUND);
     }
     return pessoa
+  }
+
+  private async validarSeCPFExiste(cpf: string) {
+    const pessoa = await this.buscarPessoaPorCpf(cpf)
+    if (pessoa != null) {
+      throw new HttpException('CPF já cadastrado.', HttpStatus.BAD_REQUEST);
+    }
   }
 }
