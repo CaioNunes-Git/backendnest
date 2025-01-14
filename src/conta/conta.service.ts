@@ -86,7 +86,7 @@ export class ContaService {
   }
 
   async cadastrar(contaDto: ContaDto): Promise<Conta> {
-    this.verificarContaMesmoTipo(contaDto)
+    await this.verificarContaMesmoTipo(contaDto)
     
 
     const conta = await this.contaRepository.create({ 
